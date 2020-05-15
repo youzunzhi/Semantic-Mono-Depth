@@ -482,7 +482,11 @@ class MonodepthModel(object):
 
             # SEMANTIC LOSS
           if 'semantic' in self.task:
-            self.semantic_loss = tf.reduce_mean(tf.multiply(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.semantic, logits=self.sem_est), self.valid)) * 0.1
+            self.semantic_squeeze = tf.squeeze(self.semantic)
+            self.valid_squeeze = tf.squeeze(self.valid)
+            # self.semantic_loss = tf.reduce_mean(tf.multiply(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.semantic, logits=self.sem1), self.valid)) * 0.1
+            self.semantic_loss = tf.reduce_mean(tf.multiply(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.semantic_squeeze, logits=self.sem1), self.valid_squeeze)) * 0.1
+            # self.semantic_loss = tf.reduce_mean(tf.multiply(tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.semantic, logits=self.sem1), self.valid)) * 0.1
             self.total_loss += self.semantic_loss
             if 'warp-semantic' in self.task:
                 self.semw = self.generate_image_left(self.sem2, self.disp_left_est[0])

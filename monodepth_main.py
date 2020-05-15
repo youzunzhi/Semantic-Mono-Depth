@@ -27,7 +27,7 @@ from average_gradients import *
 
 parser = argparse.ArgumentParser(description='Monodepth TensorFlow implementation.')
 parser.add_argument('--mode',                      type=str,   help='train or test', default='train')
-parser.add_argument('--task',                      type=str,   help='depth, semantic, semantic-depth', default='semantic', choices=['depth', 'semantic', 'semantic-depth'])
+parser.add_argument('--task',                      type=str,   help='depth, semantic, semantic-depth', default='semantic-depth', choices=['depth', 'semantic', 'semantic-depth'])
 parser.add_argument('--model_name',                type=str,   help='model name', default='semantic-monodepth')
 parser.add_argument('--encoder',                   type=str,   help='type of encoder, vgg or resnet50', default='vgg', choices=['vgg', 'resnet50'])
 parser.add_argument('--dataset',                   type=str,   help='dataset to train on, kitti, or cityscapes', default='cityscapes', choices=['kitti','cityscapes'])

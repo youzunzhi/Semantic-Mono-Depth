@@ -66,7 +66,7 @@ class MonodepthDataloader(object):
             left_image.set_shape( [None, None, 3])
             right_image.set_shape([None, None, 3])
             semantic_image.set_shape([None, None, 1])
-            valid_image.set_shape([None, None, 1])            
+            valid_image.set_shape([None, None, 1])
 
             # capacity = min_after_dequeue + (num_threads + a small safety margin) * batch_size
             min_after_dequeue = 2048
