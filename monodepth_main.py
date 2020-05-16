@@ -115,6 +115,7 @@ def test(params):
     semantics      = np.zeros((num_test_samples, params.height, params.width), dtype=np.float32)
 
     for step in range(num_test_samples):
+        print('step:', step)
         if 'semantic' in args.task and 'depth' in args.task:
             disp, sem = sess.run([model.disp_left_est[0], tf.argmax(model.sem_est[0],-1)])
             disparities[step] = disp[0].squeeze()
@@ -237,7 +238,7 @@ def train(params):
         if args.checkpoint_path != '':
             train_loader = tf.train.Saver(var_list=vars_to_restore)
 
-        with open(os.path.join(args.log_directory, 'params.sh'), 'w+') as out:
+        with open(os.path.join(args.log_directory + '/' + args.model_name, 'params.sh'), 'w+') as out:
           sys.argv[0] = os.path.join(os.getcwd(), sys.argv[0])
           out.write('#!/bin/bash\n')
           out.write('python ')
