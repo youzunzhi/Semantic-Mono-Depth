@@ -33,7 +33,7 @@ parser.add_argument('--model_name',                type=str,   help='For log, so
 parser.add_argument('--encoder',                   type=str,   help='type of encoder, vgg or resnet50', default='resnet50', choices=['vgg', 'resnet50'])
 parser.add_argument('--dataset',                   type=str,   help='dataset to train on, kitti, or cityscapes', default='cityscapes', choices=['kitti','cityscapes'])
 # parser.add_argument('--data_path',                 type=str,   help='path to the data', default='/work/u2263506/kitti_stereo/')
-parser.add_argument('--filenames_file',            type=str,   help='path to the filenames text file', default='utils/filenames/kitti_semantic_stereo_2015_train_split.txt')
+# parser.add_argument('--filenames_file',            type=str,   help='path to the filenames text file', default='utils/filenames/kitti_semantic_stereo_2015_train_split.txt')
 parser.add_argument('--input_height',              type=int,   help='input height', default=256)
 parser.add_argument('--input_width',               type=int,   help='input width', default=512)
 parser.add_argument('--batch_size',                type=int,   help='batch size', default=2)
@@ -74,7 +74,8 @@ def count_text_lines(file_path):
 def test(params):
     """Test function."""
     data_path = '/work/u2263506/kitti_stereo/' if args.dataset == 'kitti' else '/work/u2263506/cityscapes'
-    dataloader = MonodepthDataloader(data_path, args.filenames_file, params, args.dataset, args.mode)
+    filenames_file = 'utils/filenames/kitti_semantic_stereo_2015_train_split.txt' if args.dataset == 'kitti' else 'utils/filenames/cityscapes_semantic_train_files.txt'
+    dataloader = MonodepthDataloader(data_path, filenames_file, params, args.dataset, args.mode)
     left  = dataloader.left_image_batch
     right = dataloader.right_image_batch
     semantic = dataloader.semantic_image_batch
@@ -108,7 +109,7 @@ def test(params):
         restore_path = args.checkpoint_path
     train_loader.restore(sess, restore_path)
 
-    num_test_samples = count_text_lines(args.filenames_file)
+    num_test_samples = count_text_lines(filenames_file)
 
     print('now testing {} files'.format(num_test_samples))
     disparities    = np.zeros((num_test_samples, params.height, params.width), dtype=np.float32)
@@ -154,7 +155,8 @@ def train(params):
         global_step = tf.Variable(0, trainable=False)
 
         # OPTIMIZER
-        num_training_samples = count_text_lines(args.filenames_file)
+        filenames_file = 'utils/filenames/kitti_semantic_stereo_2015_train_split.txt' if args.dataset == 'kitti' else 'utils/filenames/cityscapes_semantic_train_files.txt'
+        num_training_samples = count_text_lines(filenames_file)
 
         steps_per_epoch = np.ceil(num_training_samples / params.batch_size).astype(np.int32)
         num_total_steps = params.num_epochs * steps_per_epoch
@@ -170,7 +172,7 @@ def train(params):
         print("total number of steps: {}".format(num_total_steps))
 
         data_path = '/work/u2263506/kitti_stereo/' if args.dataset == 'kitti' else '/work/u2263506/cityscapes'
-        dataloader = MonodepthDataloader(data_path, args.filenames_file, params, args.dataset, args.mode, args.no_shuffle)
+        dataloader = MonodepthDataloader(data_path, filenames_file, params, args.dataset, args.mode, args.no_shuffle)
         left  = dataloader.left_image_batch
         right = dataloader.right_image_batch
         semantic = dataloader.semantic_image_batch
