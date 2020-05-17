@@ -28,10 +28,11 @@ from average_gradients import *
 parser = argparse.ArgumentParser(description='Monodepth TensorFlow implementation.')
 parser.add_argument('--mode',                      type=str,   help='train or test', default='train')
 parser.add_argument('--task',                      type=str,   help='depth, semantic, semantic-depth', default='semantic-depth', choices=['depth', 'semantic', 'semantic-depth'])
-parser.add_argument('--model_name',                type=str,   help='model name', default='semantic-monodepth')
-parser.add_argument('--encoder',                   type=str,   help='type of encoder, vgg or resnet50', default='vgg', choices=['vgg', 'resnet50'])
+# parser.add_argument('--model_name',                type=str,   help='model name', default='semantic-monodepth')
+parser.add_argument('--model_name',                type=str,   help='For log, so be aware what experiment you are doing', required=True)
+parser.add_argument('--encoder',                   type=str,   help='type of encoder, vgg or resnet50', default='resnet50', choices=['vgg', 'resnet50'])
 parser.add_argument('--dataset',                   type=str,   help='dataset to train on, kitti, or cityscapes', default='cityscapes', choices=['kitti','cityscapes'])
-parser.add_argument('--data_path',                 type=str,   help='path to the data', default='/work/u2263506/kitti_stereo/')
+# parser.add_argument('--data_path',                 type=str,   help='path to the data', default='/work/u2263506/kitti_stereo/')
 parser.add_argument('--filenames_file',            type=str,   help='path to the filenames text file', default='utils/filenames/kitti_semantic_stereo_2015_train_split.txt')
 parser.add_argument('--input_height',              type=int,   help='input height', default=256)
 parser.add_argument('--input_width',               type=int,   help='input width', default=512)
@@ -72,8 +73,8 @@ def count_text_lines(file_path):
 
 def test(params):
     """Test function."""
-
-    dataloader = MonodepthDataloader(args.data_path, args.filenames_file, params, args.dataset, args.mode)
+    data_path = '/work/u2263506/kitti_stereo/' if args.dataset == 'kitti' else '/work/u2263506/cityscapes'
+    dataloader = MonodepthDataloader(data_path, args.filenames_file, params, args.dataset, args.mode)
     left  = dataloader.left_image_batch
     right = dataloader.right_image_batch
     semantic = dataloader.semantic_image_batch
@@ -168,7 +169,8 @@ def train(params):
         print("total number of samples: {}".format(num_training_samples))
         print("total number of steps: {}".format(num_total_steps))
 
-        dataloader = MonodepthDataloader(args.data_path, args.filenames_file, params, args.dataset, args.mode, args.no_shuffle)
+        data_path = '/work/u2263506/kitti_stereo/' if args.dataset == 'kitti' else '/work/u2263506/cityscapes'
+        dataloader = MonodepthDataloader(data_path, args.filenames_file, params, args.dataset, args.mode, args.no_shuffle)
         left  = dataloader.left_image_batch
         right = dataloader.right_image_batch
         semantic = dataloader.semantic_image_batch
@@ -272,7 +274,7 @@ def train(params):
             before_op_time = time.time()
             _, loss_value = sess.run([apply_gradient_op, total_loss])
             duration = time.time() - before_op_time
-            if step and step % 1 == 0:
+            if step and step % 100 == 0:
                 examples_per_sec = params.batch_size / duration
                 time_sofar = (time.time() - start_time) / 3600
                 training_time_left = (num_total_steps / step - 1.0) * time_sofar

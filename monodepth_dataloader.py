@@ -12,6 +12,7 @@
 
 from __future__ import absolute_import, division, print_function
 import tensorflow as tf
+import os
 
 def string_length_tf(t):
   return tf.py_func(len, [t], [tf.int64])
@@ -43,9 +44,14 @@ class MonodepthDataloader(object):
 #            semantic_image_path = tf.string_join([self.data_path, split_line[2]])
 #            semantic_image_o = self.read_semantic_gt(semantic_image_path)
         else:
-            left_image_path  = tf.string_join([self.data_path, split_line[0]])
-            right_image_path = tf.string_join([self.data_path, split_line[1]])
-            semantic_image_path = tf.string_join([self.data_path, split_line[2]])
+            if self.dataset == 'cityscapes':
+                left_image_path = tf.string_join([os.path.join(self.data_path, 'leftImg8bit/train'), split_line[0]])
+                right_image_path = tf.string_join([os.path.join(self.data_path, 'rightImg8bit/train'), split_line[1]])
+                semantic_image_path = tf.string_join([os.path.join(self.data_path, 'gtFine/train'), split_line[2]])
+            else:
+                left_image_path = tf.string_join([self.data_path, split_line[0]])
+                right_image_path = tf.string_join([self.data_path, split_line[1]])
+                semantic_image_path = tf.string_join([self.data_path, split_line[2]])
 
             left_image_o  = self.read_image(left_image_path)
             right_image_o = self.read_image(right_image_path)
