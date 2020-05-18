@@ -141,7 +141,8 @@ class MonodepthDataloader(object):
                                               tf.logical_and(tf.not_equal(image, 9), tf.not_equal(image, 10)))
                 # mask = tf.not_equal(image, 7) and tf.not_equal(image, 8)
                 # valid_image = tf.boolean_mask(valid, sem_not_flat).assign(tf.constant(0))
-                valid = tf.scatter_update(valid, tf.where(sem_not_flat), tf.constant(0.))
+                # valid = tf.scatter_update(valid, tf.where(sem_not_flat), tf.constant(0.))
+                valid = tf.scatter_update(valid, tf.where(sem_not_flat), 0.)
         elif 'no' in self.sem_mask:
             pass
 
