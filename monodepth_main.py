@@ -77,7 +77,7 @@ def test(params):
     assert args.dataset == 'kitti'
     data_path = '/work/u2263506/kitti_stereo/'
     filenames_file = 'utils/filenames/kitti_semantic_stereo_2015_test_split.txt'
-    dataloader = MonodepthDataloader(data_path, filenames_file, params, args.dataset, args.mode)
+    dataloader = MonodepthDataloader(data_path, filenames_file, params, args.dataset, args.mode, args.sem_mask)
     left  = dataloader.left_image_batch
     right = dataloader.right_image_batch
     semantic = dataloader.semantic_image_batch
