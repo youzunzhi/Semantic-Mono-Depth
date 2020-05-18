@@ -13,6 +13,7 @@
 from __future__ import absolute_import, division, print_function
 import tensorflow as tf
 import os
+tf.random.set_random_seed(1234)
 
 def string_length_tf(t):
   return tf.py_func(len, [t], [tf.int64])
@@ -133,15 +134,16 @@ class MonodepthDataloader(object):
 
         image = tf.to_int32(tf.image.resize_images(image,  [self.params.height, self.params.width], tf.image.ResizeMethod.NEAREST_NEIGHBOR))
         valid = tf.cond(file_cond, lambda: tf.ones([self.params.height, self.params.width, 1], tf.float32), lambda: tf.zeros([self.params.height, self.params.width, 1], tf.float32))
-        # if 'only' in self.sem_mask:
-        #     if 'flat' in self.sem_mask:
-        #         sem_not_flat = tf.logical_and(tf.logical_and(image != 7, image != 8),
-        #                                       tf.logical_and(image != 9, image != 10))
-        #         mask = tf.not_equal(image, 7)
-        #         # valid_image = tf.boolean_mask(valid, sem_not_flat).assign(tf.constant(0))
-        #         valid = tf.scatter_update(valid, mask, tf.constant(0))
-        # if 'no' in self.sem_mask:
-        #     pass
+        valid = tf.Variable(valid, trainable=False)
+        if 'only' in self.sem_mask:
+            if 'flat' in self.sem_mask:
+                sem_not_flat = tf.logical_and(tf.logical_and(tf.not_equal(image, 7), tf.not_equal(image, 8)),
+                                              tf.logical_and(tf.not_equal(image, 9), tf.not_equal(image, 10)))
+                # mask = tf.not_equal(image, 7) and tf.not_equal(image, 8)
+                # valid_image = tf.boolean_mask(valid, sem_not_flat).assign(tf.constant(0))
+                valid = tf.scatter_update(valid, tf.where(sem_not_flat), tf.constant(0.))
+        elif 'no' in self.sem_mask:
+            pass
 
         return image, valid
 
