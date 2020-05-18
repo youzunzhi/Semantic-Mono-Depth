@@ -4,7 +4,7 @@ import argparse
 from evaluation_utils import *
 
 parser = argparse.ArgumentParser(description='Evaluation on the KITTI dataset')
-parser.add_argument('--split',               type=str,   help='data split, kitti or eigen',         default='kitti')
+parser.add_argument('--split',               type=str,   help='data split, kitti or eigen',         default='kitti_test')
 parser.add_argument('--predicted_disp_path', type=str,   help='path to estimated disparities',      required=True)
 parser.add_argument('--gt_path',             type=str,   help='path to ground truth disparities',   default='/work/u2263506/kitti_stereo/')
 parser.add_argument('--min_depth',           type=float, help='minimum depth for evaluation',        default=1e-3)
