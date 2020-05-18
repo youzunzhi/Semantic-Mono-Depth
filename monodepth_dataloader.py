@@ -20,11 +20,12 @@ def string_length_tf(t):
 class MonodepthDataloader(object):
     """monodepth dataloader"""
 
-    def __init__(self, data_path, filenames_file, params, dataset, mode, noShuffle=False):
+    def __init__(self, data_path, filenames_file, params, dataset, mode, sem_mask, noShuffle=False):
         self.data_path = data_path
         self.params = params
         self.dataset = dataset
         self.mode = mode
+        self.sem_mask = sem_mask
 
         self.left_image_batch  = None
         self.right_image_batch = None
@@ -132,6 +133,15 @@ class MonodepthDataloader(object):
 
         image = tf.to_int32(tf.image.resize_images(image,  [self.params.height, self.params.width], tf.image.ResizeMethod.NEAREST_NEIGHBOR))
         valid = tf.cond(file_cond, lambda: tf.ones([self.params.height, self.params.width, 1], tf.float32), lambda: tf.zeros([self.params.height, self.params.width, 1], tf.float32))
+        # if 'only' in self.sem_mask:
+        #     if 'flat' in self.sem_mask:
+        #         sem_not_flat = tf.logical_and(tf.logical_and(image != 7, image != 8),
+        #                                       tf.logical_and(image != 9, image != 10))
+        #         mask = tf.not_equal(image, 7)
+        #         # valid_image = tf.boolean_mask(valid, sem_not_flat).assign(tf.constant(0))
+        #         valid = tf.scatter_update(valid, mask, tf.constant(0))
+        # if 'no' in self.sem_mask:
+        #     pass
 
         return image, valid
 

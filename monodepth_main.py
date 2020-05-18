@@ -26,6 +26,7 @@ from monodepth_dataloader import *
 from average_gradients import *
 
 parser = argparse.ArgumentParser(description='Monodepth TensorFlow implementation.')
+parser.add_argument('--sem_mask',                   type=str,   help='mask some categories in semantic gt when training', required=True)
 parser.add_argument('--mode',                      type=str,   help='train or test', default='train')
 parser.add_argument('--task',                      type=str,   help='depth, semantic, semantic-depth', default='semantic-depth', choices=['depth', 'semantic', 'semantic-depth'])
 # parser.add_argument('--model_name',                type=str,   help='model name', default='semantic-monodepth')
@@ -73,8 +74,8 @@ def count_text_lines(file_path):
 
 def test(params):
     """Test function."""
-    data_path = '/work/u2263506/kitti_stereo/' if args.dataset == 'kitti' else '/work/u2263506/cityscapes/'
-    # filenames_file = 'utils/filenames/kitti_semantic_stereo_2015_train_split.txt' if args.dataset == 'kitti' else 'utils/filenames/cityscapes_semantic_train_files.txt'
+    assert args.dataset == 'kitti'
+    data_path = '/work/u2263506/kitti_stereo/'
     filenames_file = 'utils/filenames/kitti_semantic_stereo_2015_test_split.txt'
     dataloader = MonodepthDataloader(data_path, filenames_file, params, args.dataset, args.mode)
     left  = dataloader.left_image_batch
@@ -172,8 +173,11 @@ def train(params):
         print("total number of samples: {}".format(num_training_samples))
         print("total number of steps: {}".format(num_total_steps))
 
-        data_path = '/work/u2263506/kitti_stereo/' if args.dataset == 'kitti' else '/work/u2263506/cityscapes/'
-        dataloader = MonodepthDataloader(data_path, filenames_file, params, args.dataset, args.mode, args.no_shuffle)
+        if tf.test.is_gpu_available():
+            data_path = '/work/u2263506/kitti_stereo/' if args.dataset == 'kitti' else '/work/u2263506/cityscapes/'
+        else:
+            data_path = '/Users/youzunzhi/pro/datasets/kitti/kitti_stereo/'
+        dataloader = MonodepthDataloader(data_path, filenames_file, params, args.dataset, args.mode, args.sem_mask, args.no_shuffle)
         left  = dataloader.left_image_batch
         right = dataloader.right_image_batch
         semantic = dataloader.semantic_image_batch
@@ -285,8 +289,8 @@ def train(params):
                 print(print_string.format(step, examples_per_sec, loss_value, time_sofar, training_time_left))
                 summary_str = sess.run(summary_op)
                 summary_writer.add_summary(summary_str, global_step=step)
-            if step and step % 10000 == 0:
-                train_saver.save(sess, args.log_directory + '/' + args.model_name + '/model', global_step=step)
+            # if step and step % 10000 == 0:
+            #     train_saver.save(sess, args.log_directory + '/' + args.model_name + '/model', global_step=step)
 
         train_saver.save(sess, args.log_directory + '/' + args.model_name + '/model', global_step=num_total_steps)
 
