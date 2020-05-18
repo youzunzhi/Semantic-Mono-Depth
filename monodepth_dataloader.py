@@ -133,8 +133,8 @@ class MonodepthDataloader(object):
             image  =  image[:crop_height,:,:]
 
         image = tf.to_int32(tf.image.resize_images(image,  [self.params.height, self.params.width], tf.image.ResizeMethod.NEAREST_NEIGHBOR))
-        valid = tf.cond(file_cond, lambda: tf.ones([self.params.height, self.params.width, 1], tf.float32), lambda: tf.zeros([self.params.height, self.params.width, 1], tf.float32))
-        valid = tf.Variable(valid, trainable=False)
+        # valid = tf.cond(file_cond, lambda: tf.ones([self.params.height, self.params.width, 1], tf.float32), lambda: tf.zeros([self.params.height, self.params.width, 1], tf.float32))
+        valid = tf.Variable(tf.ones([self.params.height, self.params.width, 1], tf.float32), trainable=False)
         if 'only' in self.sem_mask:
             if 'flat' in self.sem_mask:
                 sem_not_flat = tf.logical_and(tf.logical_and(tf.not_equal(image, 7), tf.not_equal(image, 8)),
