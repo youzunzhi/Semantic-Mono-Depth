@@ -74,7 +74,8 @@ def count_text_lines(file_path):
 def test(params):
     """Test function."""
     data_path = '/work/u2263506/kitti_stereo/' if args.dataset == 'kitti' else '/work/u2263506/cityscapes/'
-    filenames_file = 'utils/filenames/kitti_semantic_stereo_2015_train_split.txt' if args.dataset == 'kitti' else 'utils/filenames/cityscapes_semantic_train_files.txt'
+    # filenames_file = 'utils/filenames/kitti_semantic_stereo_2015_train_split.txt' if args.dataset == 'kitti' else 'utils/filenames/cityscapes_semantic_train_files.txt'
+    filenames_file = 'utils/filenames/kitti_semantic_stereo_2015_test_split.txt'
     dataloader = MonodepthDataloader(data_path, filenames_file, params, args.dataset, args.mode)
     left  = dataloader.left_image_batch
     right = dataloader.right_image_batch
