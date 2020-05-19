@@ -133,14 +133,18 @@ class MonodepthDataloader(object):
             image  =  image[:crop_height,:,:]
 
         image = tf.to_int32(tf.image.resize_images(image,  [self.params.height, self.params.width], tf.image.ResizeMethod.NEAREST_NEIGHBOR))
+
+        # mask semantics
         if self.sem_mask == 'no_flat':
             sem_not_flat = tf.logical_and(tf.logical_and(tf.not_equal(image, 7), tf.not_equal(image, 8)),
                                           tf.logical_and(tf.not_equal(image, 9), tf.not_equal(image, 10)))
             valid = tf.cast(sem_not_flat, tf.float32)
+            print('Masked Flat')
         elif self.sem_mask == 'only_flat':
             sem_flat = tf.logical_or(tf.logical_or(tf.equal(image, 7), tf.equal(image, 8)),
                                      tf.logical_or(tf.equal(image, 9), tf.equal(image, 10)))
             valid = tf.cast(sem_flat, tf.float32)
+            print('Masked not Flat')
         else:
             valid = tf.ones([self.params.height, self.params.width, 1], tf.float32)
             print('Not masking semantics')
