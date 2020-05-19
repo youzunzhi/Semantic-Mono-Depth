@@ -52,6 +52,7 @@ parser.add_argument('--output_directory',          type=str,   help='output dire
 parser.add_argument('--log_directory',             type=str,   help='directory to save checkpoints and summaries', default='./logs/')
 parser.add_argument('--checkpoint_path',           type=str,   help='path to a specific checkpoint to load', default='')
 parser.add_argument('--retrain',                               help='if used with checkpoint_path, will restart training from step zero', action='store_true')
+parser.add_argument('--do_flip',                               help='from 5.19-16:40, we don\'t do flip by default', action='store_true')
 parser.add_argument('--full_summary',                          help='if set, will keep more data for each summary. Warning: the file can become very large', action='store_true')
 parser.add_argument('--no_shuffle', help='Disabling shuffling at train time',   action='store_true')
 args = parser.parse_args()
@@ -309,6 +310,7 @@ def main(_):
         alpha_image_loss=args.alpha_image_loss,
         disp_gradient_loss_weight=args.disp_gradient_loss_weight,
         lr_loss_weight=args.lr_loss_weight, task = args.task,
+        do_flip=args.do_flip,
         full_summary=args.full_summary)
         
     if args.mode == 'train':

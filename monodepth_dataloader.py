@@ -60,12 +60,17 @@ class MonodepthDataloader(object):
             semantic_image_o, valid_image_o = self.read_semantic_gt(semantic_image_path)
 
         if mode == 'train':
-            # randomly flip images
-            do_flip = tf.random_uniform([], 0, 1)
-            left_image  = tf.cond(do_flip > 0.5, lambda: tf.image.flip_left_right(right_image_o), lambda: left_image_o)
-            right_image = tf.cond(do_flip > 0.5, lambda: tf.image.flip_left_right(left_image_o),  lambda: right_image_o)
+            if params.do_flip:
+                # randomly flip images
+                do_flip = tf.random_uniform([], 0, 1)
+                left_image  = tf.cond(do_flip > 0.5, lambda: tf.image.flip_left_right(right_image_o), lambda: left_image_o)
+                right_image = tf.cond(do_flip > 0.5, lambda: tf.image.flip_left_right(left_image_o),  lambda: right_image_o)
+                valid_image = tf.cond(do_flip > 0.5, lambda: tf.zeros([self.params.height, self.params.width, 1], tf.float32),  lambda: valid_image_o)
+            else:
+                left_image = left_image_o
+                right_image = right_image_o
+                valid_image = valid_image_o
             semantic_image = semantic_image_o #tf.cond(do_flip > 0.5, lambda: tf.image.flip_left_right(semantic_image_o),  lambda: semantic_image_o)
-            valid_image = tf.cond(do_flip > 0.5, lambda: tf.zeros([self.params.height, self.params.width, 1], tf.float32),  lambda: valid_image_o)
 
             # randomly augment images
             do_augment  = tf.random_uniform([], 0, 1)
@@ -139,12 +144,12 @@ class MonodepthDataloader(object):
             sem_not_flat = tf.logical_and(tf.logical_and(tf.not_equal(image, 7), tf.not_equal(image, 8)),
                                           tf.logical_and(tf.not_equal(image, 9), tf.not_equal(image, 10)))
             valid = tf.cast(sem_not_flat, tf.float32)
-            print('Masked Flat')
+            print('No Flat in Semantics')
         elif self.sem_mask == 'only_flat':
             sem_flat = tf.logical_or(tf.logical_or(tf.equal(image, 7), tf.equal(image, 8)),
                                      tf.logical_or(tf.equal(image, 9), tf.equal(image, 10)))
             valid = tf.cast(sem_flat, tf.float32)
-            print('Masked not Flat')
+            print('Only Flat in Semantics')
         else:
             valid = tf.ones([self.params.height, self.params.width, 1], tf.float32)
             print('Not masking semantics')
