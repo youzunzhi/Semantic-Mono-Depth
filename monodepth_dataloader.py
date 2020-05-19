@@ -144,15 +144,23 @@ class MonodepthDataloader(object):
             sem_not_flat = tf.logical_and(tf.logical_and(tf.not_equal(image, 7), tf.not_equal(image, 8)),
                                           tf.logical_and(tf.not_equal(image, 9), tf.not_equal(image, 10)))
             valid = tf.cast(sem_not_flat, tf.float32)
-            print('No Flat in Semantics')
+            print('No Flat in Semantics\n')
         elif self.sem_mask == 'only_flat':
             sem_flat = tf.logical_or(tf.logical_or(tf.equal(image, 7), tf.equal(image, 8)),
                                      tf.logical_or(tf.equal(image, 9), tf.equal(image, 10)))
             valid = tf.cast(sem_flat, tf.float32)
-            print('Only Flat in Semantics')
+            print('Only Flat in Semantics\n')
+        elif self.sem_mask == 'no_vehicle':
+            sem_not_vehicle = tf.less(image, 26)
+            valid = tf.cast(sem_not_vehicle, tf.float32)
+            print('No Vehicle in Semantics\n')
+        elif self.sem_mask == 'only_vehicle':
+            sem_vehicle = tf.greater_equal(image, 26)
+            valid = tf.cast(sem_vehicle, tf.float32)
+            print('Only Vehicle in Semantics\n')
         else:
             valid = tf.ones([self.params.height, self.params.width, 1], tf.float32)
-            print('Not masking semantics')
+            print('Not masking Semantics\n')
 
         valid = tf.cond(file_cond, lambda: valid, lambda: tf.zeros([self.params.height, self.params.width, 1], tf.float32))
 
