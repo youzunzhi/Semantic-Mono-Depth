@@ -133,14 +133,19 @@ class MonodepthDataloader(object):
             image  =  image[:crop_height,:,:]
 
         image = tf.to_int32(tf.image.resize_images(image,  [self.params.height, self.params.width], tf.image.ResizeMethod.NEAREST_NEIGHBOR))
-        valid = tf.cond(file_cond, lambda: tf.ones([self.params.height, self.params.width, 1], tf.float32), lambda: tf.zeros([self.params.height, self.params.width, 1], tf.float32))
-        if self.sem_mask == 'only_flat':
-            valid = tf.cast(tf.not_equal(image, 7), tf.float32)
-        # 会导致OutOfRangeError
-        # valid = tf.Variable(tf.ones([self.params.height, self.params.width, 1], tf.float32), trainable=False)
-        # sem_not_flat = tf.logical_and(tf.logical_and(tf.not_equal(image, 7), tf.not_equal(image, 8)),
-        #                               tf.logical_and(tf.not_equal(image, 9), tf.not_equal(image, 10)))
-        # valid = tf.scatter_update(valid, tf.where(sem_not_flat), 0.)
+        if self.sem_mask == 'no_flat':
+            sem_not_flat = tf.logical_and(tf.logical_and(tf.not_equal(image, 7), tf.not_equal(image, 8)),
+                                          tf.logical_and(tf.not_equal(image, 9), tf.not_equal(image, 10)))
+            valid = tf.cast(sem_not_flat, tf.float32)
+        elif self.sem_mask == 'only_flat':
+            sem_flat = tf.logical_or(tf.logical_or(tf.equal(image, 7), tf.equal(image, 8)),
+                                     tf.logical_or(tf.equal(image, 9), tf.equal(image, 10)))
+            valid = tf.cast(sem_flat, tf.float32)
+        else:
+            valid = tf.ones([self.params.height, self.params.width, 1], tf.float32)
+            print('Not masking semantics')
+
+        valid = tf.cond(file_cond, lambda: valid, lambda: tf.zeros([self.params.height, self.params.width, 1], tf.float32))
 
         return image, valid
 
