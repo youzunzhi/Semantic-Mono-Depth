@@ -484,7 +484,14 @@ class MonodepthModel(object):
           if 'semantic' in self.task:
             self.semantic_squeeze = tf.squeeze(self.semantic)
             self.valid_squeeze = tf.squeeze(self.valid)
+
+            # # 会导致global_variables_initializer无限运行
+            # sem_not_flat = tf.logical_and(tf.logical_and(tf.not_equal(self.semantic_squeeze, 7), tf.not_equal(self.semantic_squeeze, 8)),
+            #                               tf.logical_and(tf.not_equal(self.semantic_squeeze, 9), tf.not_equal(self.semantic_squeeze, 10)))
+            # self.valid_squeeze = tf.Variable(self.valid_squeeze, trainable=False)
+            # self.valid_squeeze = tf.scatter_update(self.valid_squeeze, tf.where(sem_not_flat), 0.)
             # self.semantic_loss = tf.reduce_mean(tf.multiply(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.semantic, logits=self.sem1), self.valid)) * 0.1
+
             self.semantic_loss = tf.reduce_mean(tf.multiply(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.semantic_squeeze, logits=self.sem1), self.valid_squeeze)) * 0.1
             self.total_loss += self.semantic_loss
             if 'warp-semantic' in self.task:
